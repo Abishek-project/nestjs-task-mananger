@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Param, Query, Body, HttpCode,
+  Param, Query, Body, HttpCode, UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service.js';
 import type { Task, TaskStatus } from './task.model.js';
@@ -8,6 +8,11 @@ import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateStatusDto } from './dto/update-status.dto.js';
 import { DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { TaskStatusPipe } from './pipes/task-status.pipe.js';
+import { AuthGuard } from '../common/guards/auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { Role } from '../users/user.model.js';
+@UseGuards(AuthGuard, RolesGuard)   // runs in order: authenticate, then authorize
 @Controller('tasks')   // All routes here start with /tasks
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -50,6 +55,7 @@ updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto): Task {
 
   // DELETE /tasks/abc-123
   @Delete(':id')
+  @Roles(Role.ADMIN)   // only admins can delete
   @HttpCode(204)   // "No Content" instead of the default 200
   remove(@Param('id') id: string): void {
     this.tasksService.remove(id);

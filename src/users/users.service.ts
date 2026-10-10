@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException , ConflictException } from '@nestjs/common';
+import { Role } from './user.model.js';
 import type { User } from './user.model.js';
 
 @Injectable()
 export class UsersService {
   private users: User[] = [
-    { id: '1', name: 'Abishek' },
-    { id: '2', name: 'Priya' },
+    { id: '1', name: 'Abishek', role: Role.ADMIN },
+    { id: '2', name: 'Priya', role: Role.USER },
   ];
 
   findAll(): User[] {
@@ -24,7 +25,7 @@ create(name: string): User {
   if (exists) {
     throw new ConflictException(`User "${name}" already exists`);
   }
-  const user: User = { id: String(this.users.length + 1), name };
+  const user: User = { id: String(this.users.length + 1), name, role: Role.USER };
   this.users.push(user);
   return user;
 }
