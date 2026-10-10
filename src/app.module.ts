@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
+
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { TasksModule } from './tasks/tasks.module.js';
 import { UsersModule } from './users/users.module.js';
 import { CommonModule } from './common/common.module.js';
-
+import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware.js';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -24,4 +25,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

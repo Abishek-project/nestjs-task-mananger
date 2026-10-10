@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException , ConflictException } from '@nestjs/common';
 import type { User } from './user.model.js';
 
 @Injectable()
@@ -18,6 +18,12 @@ export class UsersService {
     return user;
   }
 create(name: string): User {
+  const exists = this.users.some(
+    (u) => u.name.toLowerCase() === name.toLowerCase(),
+  );
+  if (exists) {
+    throw new ConflictException(`User "${name}" already exists`);
+  }
   const user: User = { id: String(this.users.length + 1), name };
   this.users.push(user);
   return user;

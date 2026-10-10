@@ -6,15 +6,22 @@ import { TasksService } from './tasks.service.js';
 import type { Task, TaskStatus } from './task.model.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateStatusDto } from './dto/update-status.dto.js';
+import { DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import { TaskStatusPipe } from './pipes/task-status.pipe.js';
 @Controller('tasks')   // All routes here start with /tasks
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+
+
   // GET /tasks  or  GET /tasks?status=OPEN
-  @Get()
-  findAll(@Query('status') status?: TaskStatus): Task[] {
-    return this.tasksService.findAll(status);
-  }
+@Get()
+findAll(
+  @Query('status', new TaskStatusPipe()) status?: TaskStatus,
+  @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+): Task[] {
+  return this.tasksService.findAll(status).slice(0, limit ?? 10);
+}
 
   // GET /tasks/abc-123
   @Get(':id')
@@ -30,6 +37,7 @@ export class TasksController {
 
 @Post()
 create(@Body() dto: CreateTaskDto): Task {
+    console.log('Received:', dto);  
   return this.tasksService.create(dto.title, dto.description, dto.userId);
 }
 
