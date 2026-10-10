@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Param, Query, Body, HttpCode, UseGuards,
+  Param, Query, Body, HttpCode, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service.js';
 import type { Task, TaskStatus } from './task.model.js';
@@ -12,7 +12,9 @@ import { AuthGuard } from '../common/guards/auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { Role } from '../users/user.model.js';
+import { TimeoutInterceptor } from '../common/interceptors/timeout.interceptor.js';
 @UseGuards(AuthGuard, RolesGuard)   // runs in order: authenticate, then authorize
+@UseInterceptors(TimeoutInterceptor)   // only tasks routes get the 5s timeout
 @Controller('tasks')   // All routes here start with /tasks
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
