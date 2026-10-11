@@ -13,7 +13,7 @@ export interface AuthenticatedRequest extends Request {
 export class AuthGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     // Expect "Authorization: Bearer <userId>"
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      request.user = this.usersService.findOne(token);   // attach user for later guards / handlers
+      request.user = await this.usersService.findOne(token);   // attach user for later guards / handlers
     } catch (e) {
       if (e instanceof NotFoundException) throw new UnauthorizedException('Invalid token');
       throw e;

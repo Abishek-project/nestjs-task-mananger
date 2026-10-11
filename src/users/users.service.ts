@@ -1,32 +1,30 @@
 import { Injectable, NotFoundException , ConflictException } from '@nestjs/common';
-import { Role } from './user.model.js';
 import type { User } from './user.model.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: '1', name: 'Abishek', role: Role.ADMIN },
-    { id: '2', name: 'Priya', role: Role.USER },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): User[] {
-    return this.users;
+  findAll(): Promise<User[]> {
+    return this.prisma.user.findMany({ orderBy: { createdAt: 'asc' } });
   }
 
-  findOne(id: string): User {
-    const user = this.users.find((u) => u.id === id);
+  async findOne(id: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`User with id "${id}" not found`);
     return user;
   }
-create(name: string): User {
-  const exists = this.users.some(
-    (u) => u.name.toLowerCase() === name.toLowerCase(),
-  );
-  if (exists) {
-    throw new ConflictException(`User "${name}" already exists`);
+
+  async create(name: string): Promise<User> {
+    // case-insensitive: "abishek" counts as a duplicate of "Abishek"
+    const exists = await this.prisma.user.findFirst({
+      where: { name: { equals: name, mode: 'insensitive' } },
+    });
+    if (exists) {
+      throw new ConflictException(`User "${name}" already exists`);
+    }
+    // id, role and createdAt are filled in by the @default(...) values in the schema
+    return this.prisma.user.create({ data: { name } });
   }
-  const user: User = { id: String(this.users.length + 1), name, role: Role.USER };
-  this.users.push(user);
-  return user;
-}
 }

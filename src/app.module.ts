@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { TasksModule } from './tasks/tasks.module.js';
 import { UsersModule } from './users/users.module.js';
 import { CommonModule } from './common/common.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware.js';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -24,6 +25,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     TasksModule,
     UsersModule,
     CommonModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [

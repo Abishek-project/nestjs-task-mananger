@@ -8,19 +8,19 @@ export class UsersController {
   constructor(private readonly usersService: UsersService , private readonly loggerService: LoggerService) {}
 
   @Get()
-  findAll(): User[] {
+  findAll(): Promise<User[]> {
     this.loggerService.log('UsersController', 'Finding all users');
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): User {
+  findOne(@Param('id') id: string): Promise<User> {
     this.loggerService.log('UsersController', `Finding user with ID: ${id}`);
     return this.usersService.findOne(id);
   }
 
   @Post()
-  create(@Body('name') name: string): User {
+  create(@Body('name') name: string): Promise<User> {
     this.loggerService.log('UsersController', `Creating user with name: ${name}`);
     return this.usersService.create(name);
   }

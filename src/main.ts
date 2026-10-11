@@ -1,3 +1,4 @@
+import 'dotenv/config';   // load .env into process.env (must be first)
 import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';

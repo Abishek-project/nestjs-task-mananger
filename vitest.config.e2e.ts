@@ -7,5 +7,6 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    setupFiles: ['dotenv/config'],   // e2e tests don't run main.ts, so load .env here too
   },
 });

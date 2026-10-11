@@ -23,16 +23,17 @@ export class TasksController {
 
   // GET /tasks  or  GET /tasks?status=OPEN
 @Get()
-findAll(
+async findAll(
   @Query('status', new TaskStatusPipe()) status?: TaskStatus,
   @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-): Task[] {
-  return this.tasksService.findAll(status).slice(0, limit ?? 10);
+): Promise<Task[]> {
+  const tasks = await this.tasksService.findAll(status);
+  return tasks.slice(0, limit ?? 10);
 }
 
   // GET /tasks/abc-123
   @Get(':id')
-  findOne(@Param('id') id: string): Task | undefined {
+  findOne(@Param('id') id: string): Promise<Task> {
     return this.tasksService.findOne(id);
   }
 
@@ -43,7 +44,7 @@ findAll(
 // }
 
 @Post()
-create(@Body() dto: CreateTaskDto): Task {
+create(@Body() dto: CreateTaskDto): Promise<Task> {
     console.log('Received:', dto);  
   return this.tasksService.create(dto.title, dto.description, dto.userId);
 }
@@ -51,7 +52,7 @@ create(@Body() dto: CreateTaskDto): Task {
   // PATCH /tasks/abc-123/status   body: { "status": "DONE" }
 
 @Patch(':id/status')
-updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto): Task {
+updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto): Promise<Task> {
   return this.tasksService.updateStatus(id, dto.status);
 }
 
@@ -59,7 +60,7 @@ updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto): Task {
   @Delete(':id')
   @Roles(Role.ADMIN)   // only admins can delete
   @HttpCode(204)   // "No Content" instead of the default 200
-  remove(@Param('id') id: string): void {
-    this.tasksService.remove(id);
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.tasksService.remove(id);
   }
 }
